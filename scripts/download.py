@@ -1,7 +1,7 @@
 import os
 import re
 
-ids = set()
+ids = set() 
 # Do with /bioSamples/list_biosamples.txt if for all data
 # Do with /bioSamples/list_randomInit_biosamples.txt if for labeled data
 filePath = "/bioSamples/list_biosamples.txt"
