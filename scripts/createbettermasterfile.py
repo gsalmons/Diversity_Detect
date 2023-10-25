@@ -3,7 +3,7 @@ countingDict = dict()
 import sys
 import re
 header = ""
-with open("bioProjectIds/masterInputOracle.tsv", "r") as readFile:
+with open("/bioProjectIds/masterInputOracle.tsv", "r") as readFile:
     header = readFile.readline()
     header = header.rstrip("\n")
     header = header.split("\t")
@@ -37,8 +37,8 @@ print((toRemove))
 
 importantSet = sorted(list(set(countingDict.keys()) - set(toRemove)))
 print(len(importantSet))
-with open("bioProjectIds/masterInputOracle.tsv", "r") as readFile:
-    with open("bioProjectIds/masterInputOracle2.tsv", "w") as writeFile:
+with open("/bioProjectIds/masterInputOracle.tsv", "r") as readFile:
+    with open("/bioProjectIds/masterInputOracle2.tsv", "w") as writeFile:
         head = readFile.readline()
         head = head.rstrip("\n")
         head = head.split("\t")

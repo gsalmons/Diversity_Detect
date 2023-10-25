@@ -41,12 +41,13 @@ def callFunction(script_path, commandType="python"):
 #         print(f" - Downloading RunInfos -- biosamples present in {current_file}")
 #         os.system(f"metatools_download biosamples -l /bioSamples/{current_file} /bioSamples/jsons/")
 
-#Download all biosamples
 # callFunction("scripts/retitling.py")
 # callFunction("scripts/download.py")
+
+###The above step may need to run multiple times...
+
 ###Step 7
 ###Step 6 
-# callFunction("scripts/getColumnsForInitial.py")
 
 # import os
 # for current_file in os.listdir('/bioSamples'):
@@ -57,8 +58,12 @@ def callFunction(script_path, commandType="python"):
 # # # # ### Step ? 
 # callFunction("scripts/retitling.py")
 # callFunction("scripts/download.py")
+
+## After downloads!
+
+# callFunction("scripts/getColumnsForInitial.py")
 # callFunction("scripts/getColumnsForOther.py") # Makes tsv for each bioproject
-# callFunction("scripts/uniqueTabDictionary.py")
-# callFunction("scripts/createMasterInputFile.py")
-# callFunction("scripts/createbettermasterfile.py")
+callFunction("scripts/uniqueTabDictionary.py")
+callFunction("scripts/createMasterInputFile.py")
+callFunction("scripts/createbettermasterfile.py")
 callFunction("scripts/ourkfold.py")

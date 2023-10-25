@@ -1,6 +1,6 @@
 # Race Metadata Project README
 
-This README provides a step-by-step guide on how to download data from the NCBI Bioprojects database and use Active Learning to evaluate whether a BioSample contains race information. 
+This README provides a step-by-step guide on how to download data from the NCBI Bioprojects database and use Random Forest and Active Learning to evaluate whether a BioSample contains race information. 
 
 ## Usage
 

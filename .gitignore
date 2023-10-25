@@ -3,5 +3,6 @@ bioProjectIds/oracleColumns/
 bioProjectIds/unlabeledColumns/
 bioProjectIds/masterInputOracle.tsv
 bioProjectIds/masterInputOracle2.tsv
+bioProjectIds/uniquePhrases.tsv
 bioSamples/allJsons/
 bioSamples/jsons/
