@@ -8,7 +8,7 @@ with open("/bioProjectIds/bioProjectToBioSample.json", "r") as readFile:
         if samples != []:
             idsWithSamples.append(project)
 
-#Pick 100 of them at random
+#Pick 100 of them at random 
 random.seed(0)
 random_values = random.sample(idsWithSamples, 2000)
 print(random_values)
