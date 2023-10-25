@@ -55,7 +55,7 @@ with open("bioProjectIds/masterInputOracle.tsv", "w") as writeFile:
                             if len(m) >= i+3:
                                 if (m[i:i+3]) not in ngrams:
                                     print("Couldnt find", (m[i:i+3]))
-                                    continue
+                                    continue 
                                 ngrams[(m[i:i+3])] = 1
                             elif len(m) == i+2:
                                 if m[i:i+2]+"_" not in ngrams:

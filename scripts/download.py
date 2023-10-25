@@ -5,7 +5,7 @@ ids = set()
 # Do with /bioSamples/list_biosamples.txt if for all data
 # Do with /bioSamples/list_randomInit_biosamples.txt if for labeled data
 filePath = "/bioSamples/list_biosamples.txt"
-with open(filePath, "r") as readFile:
+with open(filePath, "r") as readFile: 
     for line in readFile:
         line = line.rstrip()
         ids.add(line)
