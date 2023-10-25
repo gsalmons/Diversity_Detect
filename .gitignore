@@ -1,7 +1,3 @@
-bioProjectIds/masterInputOracle2.tsv
-bioProjectIds/masterInputOracle.tsv
-bioProjectIds/oracleColumns/
-bioProjectIds/ngramedScored/
-bioProjectIds/unlabeledColumns/
+bioProjectIds/
 bioSamples/allJsons/
 bioSamples/jsons/
