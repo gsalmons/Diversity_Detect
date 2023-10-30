@@ -99,8 +99,6 @@ except:
     print(train_index, test_index)
 
 ##TODO: use predictproba to get probabilities. Do box plot as sanity check. 
-##Take out top 20 features. would accuracy drop? UPDATE: Did this. Not by much but a little
-##generate random data (0 and 1) same shape. Feed it into the accuracy should be .5 UPDATE: Did this, was 0.5
 
 from sklearn.metrics import roc_curve, auc, confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
@@ -147,17 +145,17 @@ feature_names = np.array(ngrams)
 # Sort features based on importance
 sorted_indices = np.argsort(feature_importances)[::-1]
 
-# Select the top 20 n-grams
-top_ngrams = feature_names[sorted_indices][:20]
-top_importances = feature_importances[sorted_indices][:20]
+# Select the top 100 n-grams
+top_ngrams = feature_names[sorted_indices][:100]
+top_importances = feature_importances[sorted_indices][:100]
 
-# Plot the top 20 feature importances
+# Plot the top 100 feature importances
 plt.figure(figsize=(10, 6))
 plt.bar(range(len(top_importances)), top_importances)
 plt.xticks(range(len(top_importances)), top_ngrams, rotation=45, ha="right")
 plt.xlabel('N-gram')
 plt.ylabel('Feature Importance')
-plt.title('Top 20 Feature Importances in Random Forest')
+plt.title('Top 100 Feature Importances in Random Forest')
 plt.tight_layout()
 plt.savefig('/bioProjectIds/mostRelevantNgrams.png')
 plt.show()
@@ -188,15 +186,15 @@ with open("/bioProjectIds/ngramFrequencyByCategory.tsv", "w") as writeFile:
         writeFile.write(f"{i+1}\t{ngrams[index]}\t{raceAverages[index]}\t{nonraceAverages[index]}\n")
 
 #############################################################################
-######REMOVING THE TOP 20 FEATURES WHAT WOULD HAPPEN?????####################
+######REMOVING THE TOP 100 FEATURES WHAT WOULD HAPPEN?????####################
 #############################################################################
 
 # Sort features based on importance
 # sorted_indices = np.argsort(feature_importances)
 
-# Remove the top 20 n-grams. Tweak this. It could be the top 50, 100, 150, till it possibly break
+# Remove the top 100 n-grams. Tweak this. It could be the top 50, 100, 150, till it possibly break
 #already did 50. So try 100 or so. 
-top_ngrams_to_remove = sorted_indices[:20]
+top_ngrams_to_remove = sorted_indices[:100]
 xRandomSample_reduced = np.delete(xRandomSample, top_ngrams_to_remove, axis=1)
 
 # Re-create the StratifiedKFold object
@@ -213,11 +211,11 @@ try:
         lst_accu_stratified.append(rf.score(x_test_fold, y_test_fold))
 
     # Print the output.
-    print('List of possible accuracy without top 20 n-grams:', lst_accu_stratified)
-    print('\nMaximum Accuracy That can be obtained without top 20 n-grams is:', max(lst_accu_stratified) * 100, '%')
-    print('\nMinimum Accuracy without top 20 n-grams:', min(lst_accu_stratified) * 100, '%')
-    print('\nOverall Accuracy without top 20 n-grams:', mean(lst_accu_stratified) * 100, '%')
-    print('\nStandard Deviation without top 20 n-grams is:', stdev(lst_accu_stratified))
+    print('List of possible accuracy without top 100 n-grams:', lst_accu_stratified)
+    print('\nMaximum Accuracy That can be obtained without top 100 n-grams is:', max(lst_accu_stratified) * 100, '%')
+    print('\nMinimum Accuracy without top 100 n-grams:', min(lst_accu_stratified) * 100, '%')
+    print('\nOverall Accuracy without top 100 n-grams:', mean(lst_accu_stratified) * 100, '%')
+    print('\nStandard Deviation without top 100 n-grams is:', stdev(lst_accu_stratified))
 except:
     print(train_index, test_index)
 y_scores = rf.predict_proba(x_test_fold)[:, 1]  # Probability estimates of the positive class
@@ -232,9 +230,9 @@ plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.
 plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
 plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
-plt.title('Receiver Operating Characteristic (ROC) Curve (after removing top 20 n-grams)')
+plt.title('Receiver Operating Characteristic (ROC) Curve (after removing top 100 n-grams)')
 plt.legend(loc='lower right')
-plt.savefig("/bioProjectIds/auroc_removed_top20.png")
+plt.savefig("/bioProjectIds/auroc_removed_top100.png")
 plt.show()
 
 y_pred = rf.predict(x_test_fold)
@@ -249,5 +247,5 @@ disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[0, 1])
 plt.figure(figsize=(8, 6))
 disp.plot(cmap='Blues', values_format='d')
 plt.title('Confusion Matrix')
-plt.savefig('/bioProjectIds/confusion_matrix_removed_top20.png')
+plt.savefig('/bioProjectIds/confusion_matrix_removed_top100.png')
 plt.show()

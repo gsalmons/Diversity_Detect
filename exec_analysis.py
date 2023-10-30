@@ -63,7 +63,7 @@ def callFunction(script_path, commandType="python"):
 
 # callFunction("scripts/getColumnsForInitial.py")
 # callFunction("scripts/getColumnsForOther.py") # Makes tsv for each bioproject
-callFunction("scripts/uniqueTabDictionary.py")
-callFunction("scripts/createMasterInputFile.py")
-callFunction("scripts/createbettermasterfile.py")
+# callFunction("scripts/uniqueTabDictionary.py")
+# callFunction("scripts/createMasterInputFile.py")
+# callFunction("scripts/createbettermasterfile.py")
 callFunction("scripts/ourkfold.py")
