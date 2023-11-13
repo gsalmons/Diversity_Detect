@@ -17,9 +17,6 @@ with open("/bioProjectIds/masterInputOracle.tsv", "w") as writeFile:
         writeFile.write("\t" + gram)
     writeFile.write("\n")
     for current_file in os.listdir('/bioProjectIds/oracleColumns'):
-        # numProj += 1
-        # if numProj > 101:
-        #     break
         if current_file.endswith(".tsv"):
             bioProjectId = current_file[:-4]
             with open("/bioProjectIds/oracleColumns/" + current_file, "r") as readFile:

@@ -1,11 +1,10 @@
 # Code modified from https://www.geeksforgeeks.org/stratified-k-fold-cross-validation/
 import sys
-# Import Required Modules.
 from statistics import mean, stdev
 from sklearn import preprocessing
 from sklearn.metrics import roc_curve, roc_auc_score
 from sklearn.model_selection import StratifiedKFold
-from sklearn.ensemble import RandomForestClassifier  # Import Random Forest Classifier
+from sklearn.ensemble import RandomForestClassifier 
 import numpy as np
 import seaborn as sns
 from sklearn.metrics import roc_curve, auc, confusion_matrix, precision_recall_curve, ConfusionMatrixDisplay
@@ -34,7 +33,7 @@ yTruthList = []
 ngrams = []
 num1 = 0
 allnums = 0
-with open("/bioProjectIds/masterInputOracle.tsv", "r") as readFile:
+with open("/bioProjectIds/masterInputOracle2.tsv", "r") as readFile:
     header = readFile.readline()
     ngrams = header.split("\t")[3:]
     for line in readFile:
@@ -54,12 +53,13 @@ with open("/bioProjectIds/masterInputOracle.tsv", "r") as readFile:
                 num1 += 1
         yTruthList.append(yl)
         allnums += 1
+      
 print(sum(yTruthList))
 listedLists = xRandomSample
 xRandomSample = np.array(xRandomSample)
 
 # Create classifier object.
-rf = RandomForestClassifier(n_estimators=100, random_state=1)  # You can adjust the parameters as needed
+rf = RandomForestClassifier(n_estimators=100, random_state=1) 
 
 # Create StratifiedKFold object.
 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=1)
@@ -67,11 +67,12 @@ lst_accu_stratified = []
 train_index = 0
 test_index = 0
 bestShape = xRandomSample.shape
-# random_array = np.random.randint(2, size=bestShape)
+
 # Define the probabilities for 0 and 1
 probability_0 = (allnums - num1) / allnums  # Probability for 0
 probability_1 =  num1 / allnums # Probability for 1
 print(probability_0, probability_1)
+
 # Generate a random array based on the specified probabilities
 random_array = np.random.choice([0, 1], size=bestShape, p=[probability_0, probability_1])
 
@@ -80,128 +81,81 @@ yTruthList = np.array(yTruthList)
 print(yTruthList.shape)
 all_y_scores_0 = []
 all_y_scores_1 = []
+
 # Initialize empty lists to store probabilities for different cases
 prob_0_when_true_0 = []  # Probability of predicting 0 when true label is 0
 prob_0_when_true_1 = []  # Probability of predicting 0 when true label is 1
 prob_1_when_true_1 = []  # Probability of predicting 1 when true label is 1
 prob_1_when_true_0 = []  # Probability of predicting 1 when true label is 0
-counter = 0
-allyscores = []
-allytestfold = []
-whichFold = []
+
 try:
     for train_index, test_index in skf.split(xRandomSample, yTruthList):
         x_train_fold, x_test_fold = xRandomSample[train_index], xRandomSample[test_index]
         y_train_fold, y_test_fold = yTruthList[train_index], yTruthList[test_index]
         rf.fit(x_train_fold, y_train_fold)
         y_scores = rf.predict_proba(x_test_fold)
-        counter += 1
-        # for i in range(len(y_scores)):
-        #     if y_test_fold[i] == 0:
-        #         if y_scores[i][0] > y_scores[i][1]:
-        #             prob_0_when_true_0.append(y_scores[i][0])  # Predicted 0 when true label is 0
-        #         else:
-        #             prob_1_when_true_0.append(y_scores[i][1])  # Predicted 1 when true label is 0
-        #             print("Confused on", bioProjectList[i], counter)
-        #     else:
-        #         if y_scores[i][0] > y_scores[i][1]:
-        #             prob_0_when_true_1.append(y_scores[i][0])  # Predicted 0 when true label is 1
-        #             print("Confused on ", bioProjectList[i], counter)
-        #         else:
-        #             prob_1_when_true_1.append(y_scores[i][1])  # Predicted 1 when true label is 1
-        y_scores = rf.predict_proba(x_test_fold)[:, 1]  #TODO: use pos class for boxplot probs. 
-        precision, recall, _ = precision_recall_curve(y_test_fold, y_scores)
-        auc_pr = auc(recall, precision)
-        plt.figure(figsize=(8, 6))
-        plt.plot(recall, precision, color='darkorange', lw=2, label=f'PR curve (AUC = {auc_pr:.2f})')
-        plt.xlabel('Recall')
-        plt.ylabel('Precision')
-        plt.title('Precision-Recall Curve')
-        plt.legend(loc='lower left')
-        plt.grid(True)
-        plt.show()
-        plt.savefig(f'/bioProjectIds/precision_recall_curve_allsub_{counter}.png')
+        
         for i in range(len(y_scores)):
-            allyscores.append(y_scores[i])
-        for i in range(len(y_test_fold)):
-            allytestfold.append(y_test_fold[i])
-            whichFold.append(counter)
-        for i in range(len(test_index)):
-            
-        # plt.figure(figsize=(8, 6))
-        # boxplot = plt.boxplot([prob_0_when_true_0, prob_0_when_true_1, prob_1_when_true_1, prob_1_when_true_0],
-        # patch_artist = True,
-        # labels=['Predict 0 when True 0', 'Predict 0 when True 1', 'Predict 1 when True 1', 'Predict 1 when True 0'])
-        # colors = ['lightblue', 'lightgreen', 'lightcoral', 'lightpink']
-        # for box, color in zip(boxplot['boxes'], colors):
-        #     box.set_facecolor(color)
-        # plt.xticks([0, 1, 2, 3], ['0 when True 0', '0 when True 1', '1 when True 1', 'Predict 1 when True 0'])
-        # plt.ylabel("Probability")
-        # plt.title("Probability Distribution")
-        # plt.savefig(f"/bioProjectIds/probabilityDistribution_allsub_{counter}.png")
-        # plt.show()
-
+            if y_test_fold[i] == 0:
+                if y_scores[i][0] > y_scores[i][1]:
+                    prob_0_when_true_0.append(y_scores[i][0])  # Predicted 0 when true label is 0
+                else:
+                    prob_1_when_true_0.append(y_scores[i][1])  # Predicted 1 when true label is 0
+                    print("Confused on", bioProjectList[i])
+            else:
+                if y_scores[i][0] > y_scores[i][1]:
+                    prob_0_when_true_1.append(y_scores[i][0])  # Predicted 0 when true label is 1
+                    print("Confused on ", bioProjectList[i])
+                else:
+                    prob_1_when_true_1.append(y_scores[i][1])  # Predicted 1 when true label is 1
 except:
     print(train_index, test_index)
     # Create boxplots for the different cases
-
-#Precision recall
-# y_scores = rf.predict_proba(x_test_fold)[:, 1]  #TODO: use pos class for boxplot probs. 
-precision, recall, _ = precision_recall_curve(allytestfold, allyscores)
-auc_pr = auc(recall, precision)
 plt.figure(figsize=(8, 6))
-plt.plot(recall, precision, color='darkorange', lw=2, label=f'PR curve (AUC = {auc_pr:.2f})')
-plt.xlabel('Recall')
-plt.ylabel('Precision')
-plt.title('Precision-Recall Curve')
-plt.legend(loc='lower left')
-plt.grid(True)
+boxplot = plt.boxplot([prob_0_when_true_0, prob_0_when_true_1, prob_1_when_true_1, prob_1_when_true_0],
+patch_artist = True,
+labels=['Predict 0 when True 0', 'Predict 0 when True 1', 'Predict 1 when True 1', 'Predict 1 when True 0'])
+colors = ['lightblue', 'lightgreen', 'lightcoral', 'lightpink']
+for box, color in zip(boxplot['boxes'], colors):
+    box.set_facecolor(color)
+plt.xticks([0, 1, 2, 3], ['0 when True 0', '0 when True 1', '1 when True 1', 'Predict 1 when True 0'])
+plt.ylabel("Probability")
+plt.title("Probability Distribution")
+plt.savefig("/bioProjectIds/probabilityDistribution.png")
 plt.show()
-plt.savefig('/bioProjectIds/precision_recall_curve.png')
 
-with open("/bioProjectIds/kFoldTsvs/confidencesallsub.tsv", "w") as writeFile:
-    writeFile.write(f"Fold\tPrediction\tTruth\n")
-    for i in range(len(allytestfold)):
-        writeFile.write(f"{whichFold[i]}\t{allyscores[i]}\t{allytestfold[i]}\n")
-sys.exit()
-#     writeFile.write("Category\tConfidence\n")
-#     for s in prob_0_when_true_0:
-#         writeFile.write(f"00\t{s}\n")
-#     for s in prob_0_when_true_1:
-#         writeFile.write(f"01\t{s}\n")
-#     for s in prob_1_when_true_0:
-#         writeFile.write(f"10\t{s}\n")
-#     for s in prob_1_when_true_1:
-#         writeFile.write(f"11\t{s}\n")
+with open("/bioProjectIds/kFoldTsvs/confidences.tsv", "w") as writeFile:
+    writeFile.write("Category\tConfidence\n")
+    for s in prob_0_when_true_0:
+        writeFile.write(f"00\t{s}\n")
+    for s in prob_0_when_true_1:
+        writeFile.write(f"01\t{s}\n")
+    for s in prob_1_when_true_0:
+        writeFile.write(f"10\t{s}\n")
+    for s in prob_1_when_true_1:
+        writeFile.write(f"11\t{s}\n")
 
-# y_scores = rf.predict_proba(x_test_fold)[:, 1]  # Probability estimates of the positive class
+y_scores = rf.predict_proba(x_test_fold)[:, 1]  # Probability estimates of the positive class
 
 # Calculate the AUC-ROC score
-roc_auc = roc_auc_score(allytestfold, allyscores)
+roc_auc = roc_auc_score(y_test_fold, y_scores)
 
 # Print or save the AUC-ROC score
 print(f'AUC-ROC Score: {roc_auc:.2f}')
 
-# with open("/bioProjectIds/kFoldTsvs/y_scores.tsv", "w") as writeFile:
-#     for s in y_scores:
-#         writeFile.write(f"{s}\t")
+with open("/bioProjectIds/kFoldTsvs/y_scores.tsv", "w") as writeFile:
+    for s in y_scores:
+        writeFile.write(f"{s}\t")
 
 # Compute ROC curve and ROC area
-fpr, tpr, _ = roc_curve(allytestfold, allyscores)
-# with open("/bioProjectIds/kFoldTsvs/faslePositiveRate.tsv", "w") as writeFile:
-#     for s in fpr:
-#         writeFile.write(f"{s}\t")
+fpr, tpr, _ = roc_curve(y_test_fold, y_scores)
+with open("/bioProjectIds/kFoldTsvs/faslePositiveRate.tsv", "w") as writeFile:
+    for s in fpr:
+        writeFile.write(f"{s}\t")
 
-# with open("/bioProjectIds/kFoldTsvs/truePositiveRate.tsv", "w") as writeFile:
-#     for s in tpr:
-#         writeFile.write(f"{s}\t")
-# with open("/bioProjectIds/kFoldTsvs/rocAuc.tsv", "w") as writeFile:
-#     toWrite = ""
-#     for s in roc_auc:
-#         for r in s:
-#             toWrite += (f"{s}\t")
-#         toWrite = toWrite[-1] + "\n"
-#     writeFile.write(toWrite)
+with open("/bioProjectIds/kFoldTsvs/truePositiveRate.tsv", "w") as writeFile:
+    for s in tpr:
+        writeFile.write(f"{s}\t")
 
 # Plot ROC curve
 plt.figure(figsize=(8, 6))
@@ -211,12 +165,12 @@ plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
 plt.title('Receiver Operating Characteristic (ROC) Curve')
 plt.legend(loc='lower right')
-plt.savefig("/bioProjectIds/aurocallsub.png")
+plt.savefig("/bioProjectIds/auroc1.png")
 plt.show()
-sys.exit()
+
 y_pred = rf.predict(x_test_fold)
 
-# Compute confusion matrix
+# Compute CONFUSION MATRIX#
 cm = confusion_matrix(y_test_fold, y_pred)
 
 # Display confusion matrix
@@ -226,10 +180,10 @@ disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[0, 1])
 plt.figure(figsize=(8, 6))
 disp.plot(cmap='Blues', values_format='d')
 plt.title('Confusion Matrix')
-plt.savefig('/bioProjectIds/confusion_matrix_allsub.png')
+plt.savefig('/bioProjectIds/confusion_matrix.png')
 plt.show()
 
-###We are attempting to find the most imporant ngrams
+# find the most imporant ngrams
 feature_importances = rf.feature_importances_
 
 # Get the names of the features
@@ -239,7 +193,7 @@ feature_names = np.array(ngrams)
 sorted_indices = np.argsort(feature_importances)[::-1]
 
 # Select the top n-grams
-numTop = 100
+numTop = 12000
 top_ngrams = feature_names[sorted_indices][:numTop]
 top_importances = feature_importances[sorted_indices][:numTop]
 
@@ -251,7 +205,7 @@ plt.xlabel('N-gram')
 plt.ylabel('Feature Importance')
 plt.title(f'Top {numTop} Feature Importances in Random Forest')
 plt.tight_layout()
-plt.savefig('/bioProjectIds/mostRelevantNgrams_allsub.png')
+plt.savefig('/bioProjectIds/mostRelevantNgrams.png')
 plt.show()
 
 #Save the ngrams by importance with their frequencies in race and nonrace. 
@@ -278,15 +232,9 @@ with open("/bioProjectIds/ngramFrequencyByCategory.tsv", "w") as writeFile:
     for i, index in enumerate(sorted_indices):
         writeFile.write(f"{i+1}\t{ngrams[index]}\t{raceAverages[index]}\t{nonraceAverages[index]}\n")
 
-#############################################################################
-######REMOVING THE TOP X FEATURES WHAT WOULD HAPPEN?????####################
-#############################################################################
+######REMOVING THE TOP X FEATURES WHAT WOULD HAPPEN?????##################
 
-# Sort features based on importance
-# sorted_indices = np.argsort(feature_importances)
-
-# Remove the top X n-grams. Tweak this. It could be the top 50, 100, 150, till it possibly break
-#already did 50. So try 100 or so. 
+# Remove the top X n-grams 
 top_ngrams_to_remove = sorted_indices[:numTop]
 xRandomSample_reduced = np.delete(xRandomSample, top_ngrams_to_remove, axis=1)
 
@@ -295,12 +243,25 @@ skf = StratifiedKFold(n_splits=5, shuffle=True)
 
 # Initialize the list for accuracy scores
 lst_accu_stratified = []
+false_positives = []  # Store columns with false positives
+false_negatives = []  # Store columns with false negatives
 try:
     for train_index, test_index in skf.split(xRandomSample_reduced, yTruthList):
         x_train_fold, x_test_fold = xRandomSample_reduced[train_index], xRandomSample_reduced[test_index]
         y_train_fold, y_test_fold = yTruthList[train_index], yTruthList[test_index]
         rf.fit(x_train_fold, y_train_fold)
         lst_accu_stratified.append(rf.score(x_test_fold, y_test_fold))
+        for i in range(len(y_test_fold)):
+            true_label = y_test_fold[i]
+            predicted_label = y_pred[i]
+
+            # Check for false positives (true negative but predicted positive)
+            if true_label == 0 and predicted_label == 1:
+                false_positives.append(bioProjectList[i])
+
+            # Check for false negatives (true positive but predicted negative)
+            if true_label == 1 and predicted_label == 0:
+                false_negatives.append(bioProjectList[i])
 
     # Print the output.
     print(f'List of possible accuracy without top {numTop} n-grams:', lst_accu_stratified)
@@ -326,19 +287,6 @@ plt.title(f'Receiver Operating Characteristic (ROC) Curve (after removing top {n
 plt.legend(loc='lower right')
 plt.savefig(f"/bioProjectIds/auroc_removed_top{numTop}.png")
 plt.show()
-
-y_scores = rf.predict_proba(x_test_fold)[:, 1]  
-precision, recall, _ = precision_recall_curve(y_test_fold, y_scores)
-auc_pr = auc(recall, precision)
-plt.figure(figsize=(8, 6))
-plt.plot(recall, precision, color='darkorange', lw=2, label=f'PR curve (AUC = {auc_pr:.2f})')
-plt.xlabel('Recall')
-plt.ylabel('Precision')
-plt.title('Precision-Recall Curve')
-plt.legend(loc='lower left')
-plt.grid(True)
-plt.show()
-plt.savefig(f'/bioProjectIds/precision_recall_curve_{numTop}_removed.png')
 
 y_pred = rf.predict(x_test_fold)
 

@@ -51,3 +51,9 @@ This README provides a step-by-step guide on how to download data from the NCBI 
     ```bash
     python3 Active_Learning/bioprojectsWithSamples.py
     ```
+7. Data preprocessing
+
+    Run getColumnsForInitial.py and getColumnsForOther.py. Then run uniqueTabDictionary.py and createMasterInputFile.py and createbettermasterfile.py. 
+8. Random Forest and K Fold Stratification
+
+    Run ourkfold.py
