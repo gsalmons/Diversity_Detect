@@ -16,7 +16,7 @@ random.seed(1)
 
 # FEATCHING FEATURES AND TARGET VARIABLES IN ARRAY FORMAT.
 yTruthDict = dict()
-with open("/bioProjectIds/yTruthRandomSample.tsv", "r") as readFile:
+with open("/bioProjectIds/tmpTumorTypeLabeledDoc.tsv", "r") as readFile:
     header = readFile.readline()
     for line in readFile:
         line = line.rstrip("\n")
@@ -124,7 +124,7 @@ try:
         plt.legend(loc='lower left')
         plt.grid(True)
         plt.show()
-        plt.savefig(f'/bioProjectIds/precision_recall_curve_allsub_{counter}.png')
+        plt.savefig(f'/bioProjectIds/tumor_stage/precision_recall_curve_allsub_{counter}.png')
         for i in range(len(y_scores)):
             allyscores.append(y_scores[i])
         for i in range(len(y_test_fold)):
@@ -132,7 +132,6 @@ try:
             whichFold.append(counter)
             whichColumns.append(bioProjectList[test_index[i]])
         # for i in range(len(test_index)):
-            
         # plt.figure(figsize=(8, 6))
         # boxplot = plt.boxplot([prob_0_when_true_0, prob_0_when_true_1, prob_1_when_true_1, prob_1_when_true_0],
         # patch_artist = True,
@@ -162,9 +161,9 @@ plt.title('Precision-Recall Curve')
 plt.legend(loc='lower left')
 plt.grid(True)
 plt.show()
-plt.savefig('/bioProjectIds/precision_recall_curve.png')
+plt.savefig('/bioProjectIds/tumor_stage/precision_recall_curve.png')
 
-with open("/bioProjectIds/kFoldTsvs/confidencesallsub.tsv", "w") as writeFile:
+with open("/bioProjectIds/tumor_stage/confidencesallsub.tsv", "w") as writeFile:
     writeFile.write(f"Fold\tPrediction\tTruth\tProj&Col\n")
     for i in range(len(allytestfold)):
         writeFile.write(f"{whichFold[i]}\t{allyscores[i]}\t{allytestfold[i]}\t{whichColumns[i]}\n")
@@ -172,19 +171,6 @@ with open("/bioProjectIds/kFoldTsvs/confidencesallsub.tsv", "w") as writeFile:
             print(whichColumns[i])
         elif allytestfold[i] == "0" and float(allyscores[i]) > 0.5:
             print(whichColumns[i])        
-
-sys.exit()
-#     writeFile.write("Category\tConfidence\n")
-#     for s in prob_0_when_true_0:
-#         writeFile.write(f"00\t{s}\n")
-#     for s in prob_0_when_true_1:
-#         writeFile.write(f"01\t{s}\n")
-#     for s in prob_1_when_true_0:
-#         writeFile.write(f"10\t{s}\n")
-#     for s in prob_1_when_true_1:
-#         writeFile.write(f"11\t{s}\n")
-
-# y_scores = rf.predict_proba(x_test_fold)[:, 1]  # Probability estimates of the positive class
 
 # Calculate the AUC-ROC score
 roc_auc = roc_auc_score(allytestfold, allyscores)
@@ -198,20 +184,6 @@ print(f'AUC-ROC Score: {roc_auc:.2f}')
 
 # Compute ROC curve and ROC area
 fpr, tpr, _ = roc_curve(allytestfold, allyscores)
-# with open("/bioProjectIds/kFoldTsvs/faslePositiveRate.tsv", "w") as writeFile:
-#     for s in fpr:
-#         writeFile.write(f"{s}\t")
-
-# with open("/bioProjectIds/kFoldTsvs/truePositiveRate.tsv", "w") as writeFile:
-#     for s in tpr:
-#         writeFile.write(f"{s}\t")
-# with open("/bioProjectIds/kFoldTsvs/rocAuc.tsv", "w") as writeFile:
-#     toWrite = ""
-#     for s in roc_auc:
-#         for r in s:
-#             toWrite += (f"{s}\t")
-#         toWrite = toWrite[-1] + "\n"
-#     writeFile.write(toWrite)
 
 # Plot ROC curve
 plt.figure(figsize=(8, 6))
@@ -221,9 +193,8 @@ plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
 plt.title('Receiver Operating Characteristic (ROC) Curve')
 plt.legend(loc='lower right')
-plt.savefig("/bioProjectIds/aurocallsub.png")
+plt.savefig("/bioProjectIds/tumor_stage/aurocallsub.png")
 plt.show()
-sys.exit()
 y_pred = rf.predict(x_test_fold)
 
 # Compute confusion matrix
@@ -236,7 +207,7 @@ disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[0, 1])
 plt.figure(figsize=(8, 6))
 disp.plot(cmap='Blues', values_format='d')
 plt.title('Confusion Matrix')
-plt.savefig('/bioProjectIds/confusion_matrix_allsub.png')
+plt.savefig('/bioProjectIds/tumor_stage/confusion_matrix_allsub.png')
 plt.show()
 
 ###We are attempting to find the most imporant ngrams
@@ -249,7 +220,7 @@ feature_names = np.array(ngrams)
 sorted_indices = np.argsort(feature_importances)[::-1]
 
 # Select the top n-grams
-numTop = 100
+numTop = 50
 top_ngrams = feature_names[sorted_indices][:numTop]
 top_importances = feature_importances[sorted_indices][:numTop]
 
@@ -261,7 +232,7 @@ plt.xlabel('N-gram')
 plt.ylabel('Feature Importance')
 plt.title(f'Top {numTop} Feature Importances in Random Forest')
 plt.tight_layout()
-plt.savefig('/bioProjectIds/mostRelevantNgrams_allsub.png')
+plt.savefig('/bioProjectIds/tumor_stage/mostRelevantNgrams_allsub.png')
 plt.show()
 
 #Save the ngrams by importance with their frequencies in race and nonrace. 
@@ -283,8 +254,8 @@ for k, value in enumerate(nonraceAverages):
 for k, value in enumerate(raceAverages):
     raceAverages[k] = value / numDivR
 
-with open("/bioProjectIds/ngramFrequencyByCategory.tsv", "w") as writeFile:
-    writeFile.write("Importance\tNgram\tFrequency in Race Columns\tFrequency in Nonrace Columns\n")
+with open("/bioProjectIds/tumor_stage/ngramFrequencyByCategory.tsv", "w") as writeFile:
+    writeFile.write("Importance\tNgram\tFrequency in Tumor Stage Columns\tFrequency in Non Tumor Stage Columns\n")
     for i, index in enumerate(sorted_indices):
         writeFile.write(f"{i+1}\t{ngrams[index]}\t{raceAverages[index]}\t{nonraceAverages[index]}\n")
 
@@ -334,7 +305,7 @@ plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
 plt.title(f'Receiver Operating Characteristic (ROC) Curve (after removing top {numTop} n-grams)')
 plt.legend(loc='lower right')
-plt.savefig(f"/bioProjectIds/auroc_removed_top{numTop}.png")
+plt.savefig(f"/bioProjectIds/tumor_stage/auroc_removed_top{numTop}.png")
 plt.show()
 
 y_scores = rf.predict_proba(x_test_fold)[:, 1]  
@@ -348,7 +319,7 @@ plt.title('Precision-Recall Curve')
 plt.legend(loc='lower left')
 plt.grid(True)
 plt.show()
-plt.savefig(f'/bioProjectIds/precision_recall_curve_{numTop}_removed.png')
+plt.savefig(f'/bioProjectIds/tumor_stage/precision_recall_curve_{numTop}_removed.png')
 
 y_pred = rf.predict(x_test_fold)
 
@@ -362,5 +333,5 @@ disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[0, 1])
 plt.figure(figsize=(8, 6))
 disp.plot(cmap='Blues', values_format='d')
 plt.title('Confusion Matrix')
-plt.savefig(f'/bioProjectIds/confusion_matrix_removed_top{numTop}.png')
+plt.savefig(f'/bioProjectIds/tumor_stage/confusion_matrix_removed_top{numTop}.png')
 plt.show()

@@ -4,7 +4,7 @@ bioProjects = []
 allProj = dict()
 cellLineTypes = list()
 columnsToIgnore = ["sra", "geo", "accession", "id", "biosample"]
-unknownVariants = {"", "Not applicable", "Not Determined", "none", "None", "Not available", "Not Available", "Not determined", "not determined", "Not Applicable", "not collected", "Not Collected", "Not collected", "missing", "not_applicable", ".", "--", "-", "unknown", "Unknown", "not_available", "not available", "UNKNOWN", "n/a", "N/A", "n.a.", "N.A.", "na.", "N.a", "Missing", "na", "NA", "NA."}
+unknownVariants = {"", "Not applicable", "not applicable", "Not Determined", "none", "None", "Not available", "Not Available", "Not determined", "not determined", "Not Applicable", "not collected", "Not Collected", "Not collected", "missing", "not_applicable", ".", "--", "-", "unknown", "Unknown", "not_available", "not available", "UNKNOWN", "n/a", "N/A", "n.a.", "N.A.", "na.", "N.a", "Missing", "na", "NA", "NA."}
 
 with open("/bioProjectIds/bioProjectToBioSample.json", "r") as jFile:
     allProj = json.loads(jFile.read())

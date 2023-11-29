@@ -66,4 +66,5 @@ def callFunction(script_path, commandType="python"):
 # callFunction("scripts/uniqueTabDictionary.py")
 # callFunction("scripts/createMasterInputFile.py")
 # callFunction("scripts/createbettermasterfile.py")
-callFunction("scripts/ourkfold.py")
+# callFunction("scripts/ourkfold.py")
+callFunction("scripts/tumor_stage_kfold.py")
