@@ -68,3 +68,4 @@ def callFunction(script_path, commandType="python"):
 # callFunction("scripts/createbettermasterfile.py")
 # callFunction("scripts/ourkfold.py")
 callFunction("scripts/tumor_stage_kfold.py")
+# callFunction("scripts/sexKFold.py")

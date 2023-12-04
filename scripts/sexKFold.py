@@ -16,7 +16,7 @@ random.seed(1)
 
 # FEATCHING FEATURES AND TARGET VARIABLES IN ARRAY FORMAT.
 yTruthDict = dict()
-with open("/bioProjectIds/tmpTumorTypeLabeledDoc.tsv", "r") as readFile:
+with open("/bioProjectIds/sexLabeled.tsv", "r") as readFile:
     header = readFile.readline()
     for line in readFile:
         line = line.rstrip("\n")
@@ -124,7 +124,7 @@ try:
         plt.legend(loc='lower left')
         plt.grid(True)
         plt.show()
-        plt.savefig(f'/bioProjectIds/tumor_stage/precision_recall_curve_allsub_{counter}.png')
+        plt.savefig(f'/bioProjectIds/sex/precision_recall_curve_allsub_{counter}.png')
         for i in range(len(y_scores)):
             allyscores.append(y_scores[i])
         for i in range(len(y_test_fold)):
@@ -161,9 +161,9 @@ plt.title('Precision-Recall Curve')
 plt.legend(loc='lower left')
 plt.grid(True)
 plt.show()
-plt.savefig('/bioProjectIds/tumor_stage/precision_recall_curve.png')
+plt.savefig('/bioProjectIds/sex/precision_recall_curve.png')
 
-with open("/bioProjectIds/tumor_stage/confidencesallsub.tsv", "w") as writeFile:
+with open("/bioProjectIds/sex/confidencesallsub.tsv", "w") as writeFile:
     writeFile.write(f"Fold\tPrediction\tTruth\tProj&Col\n")
     for i in range(len(allytestfold)):
         writeFile.write(f"{whichFold[i]}\t{allyscores[i]}\t{allytestfold[i]}\t{whichColumns[i]}\n")
@@ -197,7 +197,7 @@ disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[0, 1])
 plt.figure(figsize=(8, 6))
 disp.plot(cmap='Blues', values_format='d')
 plt.title('Confusion Matrix')
-plt.savefig('/bioProjectIds/tumor_stage/confusion_matrix_allsub.png')
+plt.savefig('/bioProjectIds/sex/confusion_matrix_allsub.png')
 plt.show()
 
 ###We are attempting to find the most imporant ngrams
@@ -222,7 +222,7 @@ plt.xlabel('N-gram')
 plt.ylabel('Feature Importance')
 plt.title(f'Top {numTop} Feature Importances in Random Forest')
 plt.tight_layout()
-plt.savefig('/bioProjectIds/tumor_stage/mostRelevantNgrams_allsub.png')
+plt.savefig('/bioProjectIds/sex/mostRelevantNgrams_allsub.png')
 plt.show()
 
 #Save the ngrams by importance with their frequencies in race and nonrace. 
@@ -244,8 +244,8 @@ for k, value in enumerate(nonraceAverages):
 for k, value in enumerate(raceAverages):
     raceAverages[k] = value / numDivR
 
-with open("/bioProjectIds/tumor_stage/ngramFrequencyByCategory.tsv", "w") as writeFile:
-    writeFile.write("Importance\tNgram\tFrequency in Tumor Stage Columns\tFrequency in Non Tumor Stage Columns\n")
+with open("/bioProjectIds/sex/ngramFrequencyByCategory.tsv", "w") as writeFile:
+    writeFile.write("Importance\tNgram\tFrequency in Sex Columns\tFrequency in Non Sex Columns\n")
     for i, index in enumerate(sorted_indices):
         writeFile.write(f"{i+1}\t{ngrams[index]}\t{raceAverages[index]}\t{nonraceAverages[index]}\n")
 
@@ -298,7 +298,7 @@ plt.title('Precision-Recall Curve')
 plt.legend(loc='lower left')
 plt.grid(True)
 plt.show()
-plt.savefig(f'/bioProjectIds/tumor_stage/precision_recall_curve_{numTop}_removed.png')
+plt.savefig(f'/bioProjectIds/sex/precision_recall_curve_{numTop}_removed.png')
 
 y_pred = rf.predict(x_test_fold)
 
@@ -312,5 +312,5 @@ disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[0, 1])
 plt.figure(figsize=(8, 6))
 disp.plot(cmap='Blues', values_format='d')
 plt.title('Confusion Matrix')
-plt.savefig(f'/bioProjectIds/tumor_stage/confusion_matrix_removed_top{numTop}.png')
+plt.savefig(f'/bioProjectIds/sex/confusion_matrix_removed_top{numTop}.png')
 plt.show()
