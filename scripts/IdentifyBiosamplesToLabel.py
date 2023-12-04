@@ -1,9 +1,14 @@
+"""Objective: Identify which bioSamples should be downloaded to be manually curated. 
+Inputs: No args. bioProjectToBioSample.json. initialRandomSample.tsv
+Outputs: list_randomInit_biosamples.txt
+"""
 import json
 
 with open('/bioProjectIds/bioProjectToBioSample.json', "r") as jFile:
     allProj = json.loads(jFile.read())
 biosamples = []
-#This file has the bioProject IDs for our 100 randomly sampled. 
+
+#This file has the bioProject IDs for our 2000 randomly sampled. 
 with open ("/bioProjectIds/initialRandomSample.tsv", "r") as readFile:
     for line in readFile:
         line = line.rstrip()

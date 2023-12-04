@@ -1,4 +1,10 @@
-# Objective: Only include ngrams that occur more than one time total in the file. 
+"""Objectives: Remove tri-grams that occur less than two times across all labeled BioProjects because they will not be informative.
+Inputs: masterInputOracle.tsv
+Outputs: masterInputOracle2.tsv
+"""
+
+
+#Only include ngrams that occur more than one time total in the file. 
 countingDict = dict()
 import sys
 import re
@@ -12,8 +18,7 @@ with open("/bioProjectIds/masterInputOracle.tsv", "r") as readFile:
     for h in header:
         countingDict[h] = 0
     for k, line in enumerate(readFile):
-        # if k > 500:
-        #     break
+       
         line = line.rstrip("\n")
         line = line.split("\t")
         counts = line[3:]
@@ -29,7 +34,7 @@ with open("/bioProjectIds/masterInputOracle.tsv", "r") as readFile:
                 sys.exit()
 toRemove = list()
 for key in countingDict:
-    if countingDict[key] < 2: #TODO: change this to all 30,000 instead of 2000 later?
+    if countingDict[key] < 2: 
         toRemove.append(key)
         print(len(key))
         print(key)
@@ -48,10 +53,7 @@ with open("/bioProjectIds/masterInputOracle.tsv", "r") as readFile:
         importantSet = set(importantSet)
         writeFile.write("\n")
         head = head[3:]
-        # indicesToStay = set()
-        # for j, h in enumerate(head):
-        #     if h in importantSet:
-        #         indicesToStay.add(j)
+       
         for k, line in enumerate(readFile):
             line = line.rstrip("\n")
             line = line.split("\t")

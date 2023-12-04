@@ -1,3 +1,10 @@
+"""Objective: Standardize the naming of files downloaded. Most are downloaded with the
+BioSample as the name but some are not. This ensures that the name for each file will be the ID. 
+Inputs: No args. Contents of bioSamples/allJsons directory
+Outputs: Renaming of files in bioSamples/allJsons directory
+"""
+
+
 import os
 import json
 

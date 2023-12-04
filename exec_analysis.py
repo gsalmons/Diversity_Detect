@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 
 import subprocess
-
-def callFunction(script_path, commandType="python"):
-    command = [commandType, script_path]
+import os
+def callFunction(script_path, commandType="python", arguments=None):
+    command = []
+    if arguments:
+        command = [commandType, script_path, arguments]
+    else:
+        command = [commandType, script_path]
     # Run the external Python script
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     output, error = process.communicate()
@@ -35,37 +39,58 @@ def callFunction(script_path, commandType="python"):
 
 ###Step 5 
 #Download the biosamples for our randomly picked BioProjects
-# import os
-# for current_file in os.listdir('/bioSamples'):
-#     if current_file.startswith('keep'): # change to list_random if first time, all other times do this one
-#         print(f" - Downloading RunInfos -- biosamples present in {current_file}")
-#         os.system(f"metatools_download biosamples -l /bioSamples/{current_file} /bioSamples/jsons/")
 
-# callFunction("scripts/retitling.py")
-# callFunction("scripts/download.py")
+# fileSizeChanging = True
+# fileSize = 0
+# while fileSizeChanging:
+    #fileSizeChanging = False
+    # callFunction("scripts/download.py", "python", "jsons")
+    # for current_file in os.listdir('/bioSamples'):
+    #     if current_file.startswith('keep'):
+    #         print(f" - Downloading RunInfos -- biosamples present in {current_file}")
+    #         os.system(f"metatools_download biosamples -l /bioSamples/{current_file} /bioSamples/jsons/")
+    # callFunction("scripts/retitling.py")
+    # callFunction("scripts/download.py", "python", "jsons")
+    ##See if downloading continues to be successfull...
+    # with open("bioSamples/keepLoading.txt", "r") as readFile:
+    #     newSize = len(readFile.read().rstrip().split("\n"))
+    #     if newSize != fileSize:
+    #         fileSizeChanging = True
+    #         fileSize = newSize
 
-###The above step may need to run multiple times...
 
-###Step 7
-###Step 6 
+# fileSizeChanging = True
+# fileSize = 0
 
-# import os
-# for current_file in os.listdir('/bioSamples'):
-#     if current_file.startswith('keepL'):
-#         print(f" - Downloading RunInfos -- biosamples present in {current_file}")
-#         os.system(f"metatools_download biosamples -l /bioSamples/{current_file} /bioSamples/allJsons/")
+# while fileSizeChanging:
+    # fileSizeChanging = False
+#     callFunction("scripts/download.py", "python", "allJsons")
+    # for current_file in os.listdir('/bioSamples'):
+    #     if current_file.startswith('keep'): 
+    #         print(f" - Downloading RunInfos -- biosamples present in {current_file}")
+    #         os.system(f"metatools_download biosamples -l /bioSamples/{current_file} /bioSamples/allJsons/")
 
-# # # # ### Step ? 
-# callFunction("scripts/retitling.py")
-# callFunction("scripts/download.py")
+    # callFunction("scripts/retitling.py")
+    # callFunction("scripts/download.py", "python", "allJsons")
+    ##See if downloading continues to be successfull...
+    # with open("bioSamples/keepLoading.txt", "r") as readFile:
+    #     newSize = len(readFile.read().rstrip().split("\n"))
+    #     if newSize != fileSize:
+    #         fileSizeChanging = True
+    #         fileSize = newSize
 
-## After downloads!
+###The above step takes time because only so many requests can be run at a time...
 
+# Step 6
 # callFunction("scripts/getColumnsForInitial.py")
-# callFunction("scripts/getColumnsForOther.py") # Makes tsv for each bioproject
+# callFunction("scripts/getColumnsForOther.py")
+
+# Step 7
 # callFunction("scripts/uniqueTabDictionary.py")
 # callFunction("scripts/createMasterInputFile.py")
-# callFunction("scripts/createbettermasterfile.py")
+# callFunction("scripts/createbettermasterfile.py") #TODO: Ask Piccolo if we should get rid of this one
+
+# Step 8
 # callFunction("scripts/ourkfold.py")
-callFunction("scripts/tumor_stage_kfold.py")
+# callFunction("scripts/tumor_stage_kfold.py")
 # callFunction("scripts/sexKFold.py")

@@ -1,3 +1,9 @@
+"""Objective: Identify which 2000 bioProjects will be manually curated via random selection
+Inputs: No args. bioProjectToBioSample.json
+Outputs: initialRandomSample.tsv and unlabeledProjects.tsv
+The first file is the 2000 chosen, the second file contains project IDs that were not chosen. 
+"""
+
 import random
 import json
 #load in all the bioProject IDs
@@ -12,6 +18,7 @@ with open("/bioProjectIds/bioProjectToBioSample.json", "r") as readFile:
 random.seed(0)
 random_values = random.sample(idsWithSamples, 2000)
 print(random_values)
+
 #Save randomly generated IDs to a file
 with open("/bioProjectIds/initialRandomSample.tsv", "w") as writeFile:
     for id in random_values:

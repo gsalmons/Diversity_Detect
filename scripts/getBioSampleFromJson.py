@@ -1,4 +1,9 @@
+"""Objective: Get all of the bioSamples in order to download their metadata
+Inputs: No args. Reads in bioProjectToBioSample.json
+Outputs: list_biosamples.txt"""
+
 import json
+
 with open("/bioProjectIds/bioProjectToBioSample.json", "r") as jFile:
     allProj = json.loads(jFile.read())
 

@@ -1,3 +1,9 @@
+"""Objective: Get each unique value for each column of a BioProject across all its BioSamples. 
+Clean the downloaded biosample data and remove noise. 
+Inputs: bioProjectToBioSample.json, initialRandomSample.tsv
+Outputs: oracleColumns/{projectId}.tsv for each project ID that has been chosen to be manually curated
+"""
+
 import json
 
 bioProjects = []
@@ -15,9 +21,11 @@ with open("/bioProjectIds/initialRandomSample.tsv", "r") as readFile:
         line = line.rstrip()
         bioProjects.append(line)
 print("Loaded the second in alright!")
+
 numSampleMasterList = []
 raceEthnicitySize = []
 raceproject = []
+
 for projectId in bioProjects:
     with open(f"/bioProjectIds/oracleColumns/{projectId}.tsv", "w") as writeFile:
         sampleIds = allProj[projectId]
@@ -52,21 +60,21 @@ for projectId in bioProjects:
             #Get rid of columns that we know do not contain useful info for the model
             if info in columnsToIgnore:
                 continue
-            #Get rid of columns that have unique values for each biosample if there is more than one biosample
+
+            #Get rid of columns that have unique values for each biosample if there is more than one biosample 
             #UNLESS that column is description
             if numSamples > 1 and len(projectInfo[info]) == numSamples and info != "description" and info != "title":
                 if info == "race" or info == "ethnicity":
                     print("problemo!", projectId)
-                # print(f"not including, {info}, {projectInfo[info]}")
                 continue
-            #Get rid of columns that have float numbers
+               
             if type(next(iter(projectInfo[info]))) == float: 
-                # print(f"not including, {info}, {projectInfo[info]}")
                 continue
+
             #Get rid of columns that have just one "unknown" value
             if len(projectInfo[info]) == 1 and str(projectInfo[info]) in unknownVariants:
-                # print(f"not including, {info}, {projectInfo[info]}")
                 continue
+
             #Get rid of columns that multiple "unknown"-esque values
             allUnknownVar = True
             for v in projectInfo[info]:
@@ -91,6 +99,7 @@ for projectId in bioProjects:
                 writeFile.write("\n" + info + "\t")
             for value in sorted(list(projectInfo[info])):
                 writeFile.write(value + "\t")
+
 cellLineTypes = list(set(cellLineTypes))
 with open("/bioProjectIds/cellLines.tsv", "w") as writeFile:
     for values in cellLineTypes:
@@ -100,6 +109,7 @@ with open("/bioProjectIds/cellLines.tsv", "w") as writeFile:
             writeFile.write("\n")
         else:
             writeFile.write(values + "\n")
+
 with open("/bioProjectIds/sizes.tsv", "w") as writeFile:
     numLargeEnough = 0
     numTooSmall = 0

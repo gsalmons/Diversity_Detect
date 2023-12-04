@@ -1,5 +1,13 @@
+"""Objectives: Create a file that could be the input for machine learning. Record the presence (1 = present, 0 = absent)
+of each tri-gram for each column of each BioProject that has been hand labeled. 
+Inputs: uniquePhrases.tsv contents of oracleColumns directory
+Outputs: masterInputOracle.tsv
+"""
+
 import os
 import re
+
+#CODE TO GENERATE NGRAMS FOR OTHER BIOPROJECTS
 ngrams = dict()
 numProj = 0
 def reset0(dictionary):
@@ -11,18 +19,20 @@ with open("/bioProjectIds/uniquePhrases.tsv", "r") as dictFile:
     for line in dictFile:
         line = line.rstrip("\n")
         ngrams[line] = 0
+
 with open("/bioProjectIds/masterInputOracle.tsv", "w") as writeFile:
     writeFile.write("BioProjectID\tFieldName\tUniqueValues")
     for gram in sorted(list(ngrams.keys())):
         writeFile.write("\t" + gram)
     writeFile.write("\n")
+
     for current_file in os.listdir('/bioProjectIds/oracleColumns'):
         if current_file.endswith(".tsv"):
             bioProjectId = current_file[:-4]
+
             with open("/bioProjectIds/oracleColumns/" + current_file, "r") as readFile:
                 for line in readFile:
                     ngrams = reset0(ngrams)
-
                     line = line.rstrip("\n")
                     if line == "":
                         continue

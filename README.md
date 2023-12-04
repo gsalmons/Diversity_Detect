@@ -17,43 +17,32 @@ This README provides a step-by-step guide on how to download data from the NCBI 
 
 1. **Generate a map of bioProjects with associated bioSamples**
 
-   Run `bioProjToBioSamp2.py` to generate `bioProjectToBioSample.json`, which maps Bioprojects to Biosample data.
+   Run `bioProjToBioSamp.py` to generate `bioProjectToBioSample.json`, which maps Bioprojects to Biosample data.
 
-2. **Generate the list of BioSamples to download**
+2. **Generate a list of bioSample IDs that need to be downloaded**
 
-   Use `getBiosampleIdsFromJson.py` to extract Biosample IDs and create `bioSamples/list_biosamples.txt`.
+   Run `getBioSampleFromJson.py` to generate `list_biosamples.txt`, which contains all of the BioSample IDs that will have metadata downloaded.
 
-3. **Split Biosample List**
-    
-    Split list_biosamples.txt into smaller files with a maximum of 1000 entries each. This creates the to_download folder.
-    ```bash
-    split -l 1000 -d list_biosamples.txt to_download/to_download
-    ```
-    (Note: The code for this step comes from the metatools_ncbi repository.)
+3. **Randomly select which BioProjects will be annotated manually**
 
-4. **Download Biosamples**
+   Run `getRandomIds.py` to generate `intialRandomSample.tsv` and `unlabeledProject.tsv`, where the first file has the 2000 bioprojects that was randomly selected and the second file contains project IDs that were not selected. 
 
-    Run the downloadBiosample.sh script to initiate the download process.
-    ```bash
-    sh downloadBiosample.sh
-    ```
-5. **Return to Main Directory**
+4. **Identify which Biosamples would be downloaded for labeling**
 
-    Return to the main project directory:
+   Run `IdentifyBiosamplesToLabel.py` to generate `list_randomInit_biosamples.txt` which contains all of the BioSample IDs for our randomly selected bioprojects. 
 
-    ```bash
-    cd ..
-    ```
-6. Generate a Sampled List
+5. **Download the biosamples and standardize their file names**
 
-    Run the following command to generate a new list of Bioprojects with samples that can be randomly sampled from:
+   Start with the metatools download to get the information for the biosamples that were identified. After running this, run `download.py` to get the biosample IDs into `allJsons`. If there are still biosamples left to download, we keep running and those biosample IDs are put in the `keepLoading.txt`. Run `retitling.py` to standardize the naming of the downloaded files in the `allJsons` directory. 
 
-    ```bash
-    python3 Active_Learning/bioprojectsWithSamples.py
-    ```
-7. Data preprocessing
+6. **Get the unique values for each column of a BioProject across all of its Biosamples**
 
-    Run getColumnsForInitial.py and getColumnsForOther.py. Then run uniqueTabDictionary.py and createMasterInputFile.py and createbettermasterfile.py. 
-8. Random Forest and K Fold Stratification
+   Run `getColumnsForInitial.py` and `getColumnsForOther.py`to get the unique values for each column of bioprojects. The first file does this for the randomly selected 2000 bioprojects while the second one works with the non-selected bioprojects. `oracleColumns` directory has individual tsv files for each bioproject. 
 
-    Run ourkfold.py
+7. **Generate a file that contains every unique tri-grams present in labeled and unlabeled BioProject metadata**
+
+   Run `uniqueTabDictionary.py` to generate `uniquePhrases.tsv` which contains all of the unique tri-grams across all bioproject metadata. Run `createMasterInputFile.py`to create a file that could be used as an input for machine learning. This works with the bioprojects that were randomly selected and hand labeled, while `createBetterMasterFile.py` takes out the tri-grams that occur less than 2 times. `masterInputOracle.tsv` contains all of the tri-grams from both labeled and unlabeled bioprojects. The columns are the tri-grams and the rows are the column names from the labeled bioprojects. 
+
+8. **Uses Random Forest on individual columns of bioprojects to predict outcomes**
+
+   Run `ourkfold.py` to generate `AUC-ROC Score`, `Confusion Matrix`, `Precision recall curves` and a graph showing the `top feature importances` for our race n-grams. Run `sexKfold.py` to generate the graphs and visualizations for our sex/gender n-grams. Run `tumor_stage_kfold.py` to generate the graphs and visualizations for our tumor stage n-grams. 

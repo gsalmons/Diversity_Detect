@@ -1,3 +1,8 @@
+"""Objective: Get each unique value for each column of a BioProject across all its BioSamples. 
+Clean the downloaded biosample data and remove noise. 
+Inputs: bioProjectToBioSample.json, unlabeledProjects.tsv
+Outputs: unlabeledColumns/{projectId}.tsv for each project ID that has not been chosen to be manually curated
+"""
 import json
 
 bioProjects = []
@@ -47,18 +52,16 @@ for projectId in bioProjects:
             #Get rid of columns that have unique values for each biosample if there is more than one biosample
             #UNLESS that column is description
             if numSamples > 1 and len(projectInfo[info]) == numSamples and info != "description" and info != "title":
-                # print(f"not including, {info}, {projectInfo[info]}")
                 if info == "race" or info == "ethnicity":
                     print("problemo!", projectId)
                 continue
-            #Get rid of columns that have float numbers
+            
             if type(next(iter(projectInfo[info]))) == float:
-                # print(f"not including, {info}, {projectInfo[info]}")
                 continue
-            #Get rid of columns that have "" values
+            
             if projectInfo[info] == {""} or projectInfo[info] == {"missing"} or projectInfo[info] == {"--"} or projectInfo[info] == {"unknown"} or projectInfo[info] == {"-"} or projectInfo[info] == {"UNKNOWN"} or projectInfo[info] == {"Unknown"} or projectInfo[info] == {"n/a"} or projectInfo[info] == {"N/A"} or projectInfo[info] == {"n.a."} or projectInfo[info] == {"N.A."} or projectInfo[info] == {"n.a"} or projectInfo[info] == {"N.a"} or projectInfo[info] == {"Missing"} or projectInfo[info] == {"na"} or projectInfo[info] == {"NA"} or projectInfo[info] == {"NA."} or projectInfo[info] == {"na."} or projectInfo[info] == {"not available"} or projectInfo[info] == {"not_available"} or  projectInfo[info] == {"not_applicable"} or projectInfo[info] == {"not collected"} or projectInfo[info] == {"Not Collected"} or projectInfo[info] == {"Not collected"} or projectInfo[info] == {"Not Applicable"} or projectInfo[info] == {"Not applicable"} or projectInfo[info] == {"Not Determined"} or projectInfo[info] == {"Not determined"} or projectInfo[info] == {"not determined"} or projectInfo[info] == {"Not available"} or projectInfo[info] == {"Not Available"} or projectInfo[info] == {"none"} or projectInfo[info] == {"None"}:
-                # print(f"not including, {info}, {projectInfo[info]}")
                 continue
+                
             if firstTime:
                 writeFile.write(info + "\t")
                 firstTime = False

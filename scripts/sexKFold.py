@@ -1,20 +1,29 @@
+"""
+Objective: Using Random Forest on individual columns of bioprojects to predict outcomes.
+Inputs: 
+- Input data loaded from masterInputOracle.tsv
+- True labels loaded from sexLabeled.tsv
+Outputs: 
+- Precision Recall curves, Confusion Matrix 
+- AUC-ROC score
+- Feature importances and top N-grams visualized and saved
+- N-gram frequencies by category 
+- Results of removing top features and their impact on accuracy visualized and saved
+"""
+
 # Code modified from https://www.geeksforgeeks.org/stratified-k-fold-cross-validation/
-import sys
-# Import Required Modules.
 from statistics import mean, stdev
-from sklearn import preprocessing
 from sklearn.metrics import roc_curve, roc_auc_score
 from sklearn.model_selection import StratifiedKFold
 from sklearn.ensemble import RandomForestClassifier  # Import Random Forest Classifier
 import numpy as np
-import seaborn as sns
 from sklearn.metrics import roc_curve, auc, confusion_matrix, precision_recall_curve, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 import random
 
 random.seed(1)
 
-# FEATCHING FEATURES AND TARGET VARIABLES IN ARRAY FORMAT.
+#Load the true labels
 yTruthDict = dict()
 with open("/bioProjectIds/sexLabeled.tsv", "r") as readFile:
     header = readFile.readline()
@@ -37,6 +46,8 @@ yTruthList = []
 ngrams = []
 num1 = 0
 allnums = 0
+
+#Load the input data
 with open("/bioProjectIds/masterInputOracle.tsv", "r") as readFile:
     header = readFile.readline()
     ngrams = header.split("\t")[3:]
@@ -70,11 +81,12 @@ lst_accu_stratified = []
 train_index = 0
 test_index = 0
 bestShape = xRandomSample.shape
-# random_array = np.random.randint(2, size=bestShape)
+
 # Define the probabilities for 0 and 1
 probability_0 = (allnums - num1) / allnums  # Probability for 0
 probability_1 =  num1 / allnums # Probability for 1
 print(probability_0, probability_1)
+
 # Generate a random array based on the specified probabilities
 random_array = np.random.choice([0, 1], size=bestShape, p=[probability_0, probability_1])
 
@@ -83,12 +95,8 @@ yTruthList = np.array(yTruthList)
 print(yTruthList.shape)
 all_y_scores_0 = []
 all_y_scores_1 = []
-# Initialize empty lists to store probabilities for different cases
-prob_0_when_true_0 = []  # Probability of predicting 0 when true label is 0
-prob_0_when_true_1 = []  # Probability of predicting 0 when true label is 1
-prob_1_when_true_1 = []  # Probability of predicting 1 when true label is 1
-prob_1_when_true_0 = []  # Probability of predicting 1 when true label is 0
-counter = 0
+
+foldNumber = 0
 allyscores = []
 allytestfold = []
 whichFold = []
@@ -99,20 +107,7 @@ try:
         y_train_fold, y_test_fold = yTruthList[train_index], yTruthList[test_index]
         rf.fit(x_train_fold, y_train_fold)
         y_scores = rf.predict_proba(x_test_fold)
-        counter += 1
-        # for i in range(len(y_scores)):
-        #     if y_test_fold[i] == 0:
-        #         if y_scores[i][0] > y_scores[i][1]:
-        #             prob_0_when_true_0.append(y_scores[i][0])  # Predicted 0 when true label is 0
-        #         else:
-        #             prob_1_when_true_0.append(y_scores[i][1])  # Predicted 1 when true label is 0
-        #             print("Confused on", bioProjectList[i], counter)
-        #     else:
-        #         if y_scores[i][0] > y_scores[i][1]:
-        #             prob_0_when_true_1.append(y_scores[i][0])  # Predicted 0 when true label is 1
-        #             print("Confused on ", bioProjectList[i], counter)
-        #         else:
-        #             prob_1_when_true_1.append(y_scores[i][1])  # Predicted 1 when true label is 1
+        foldNumber += 1
         y_scores = rf.predict_proba(x_test_fold)[:, 1]  #TODO: use pos class for boxplot probs. 
         precision, recall, _ = precision_recall_curve(y_test_fold, y_scores)
         auc_pr = auc(recall, precision)
@@ -124,33 +119,17 @@ try:
         plt.legend(loc='lower left')
         plt.grid(True)
         plt.show()
-        plt.savefig(f'/bioProjectIds/sex/precision_recall_curve_allsub_{counter}.png')
+        plt.savefig(f'/bioProjectIds/sex/precision_recall_curve_allsub_{foldNumber}.png')
         for i in range(len(y_scores)):
             allyscores.append(y_scores[i])
         for i in range(len(y_test_fold)):
             allytestfold.append(y_test_fold[i])
-            whichFold.append(counter)
+            whichFold.append(foldNumber)
             whichColumns.append(bioProjectList[test_index[i]])
-        # for i in range(len(test_index)):
-        # plt.figure(figsize=(8, 6))
-        # boxplot = plt.boxplot([prob_0_when_true_0, prob_0_when_true_1, prob_1_when_true_1, prob_1_when_true_0],
-        # patch_artist = True,
-        # labels=['Predict 0 when True 0', 'Predict 0 when True 1', 'Predict 1 when True 1', 'Predict 1 when True 0'])
-        # colors = ['lightblue', 'lightgreen', 'lightcoral', 'lightpink']
-        # for box, color in zip(boxplot['boxes'], colors):
-        #     box.set_facecolor(color)
-        # plt.xticks([0, 1, 2, 3], ['0 when True 0', '0 when True 1', '1 when True 1', 'Predict 1 when True 0'])
-        # plt.ylabel("Probability")
-        # plt.title("Probability Distribution")
-        # plt.savefig(f"/bioProjectIds/probabilityDistribution_allsub_{counter}.png")
-        # plt.show()
-
 except:
     print(train_index, test_index)
-    # Create boxplots for the different cases
 
 #Precision recall
-# y_scores = rf.predict_proba(x_test_fold)[:, 1]  #TODO: use pos class for boxplot probs. 
 precision, recall, _ = precision_recall_curve(allytestfold, allyscores)
 auc_pr = auc(recall, precision)
 plt.figure(figsize=(8, 6))
@@ -177,10 +156,6 @@ roc_auc = roc_auc_score(allytestfold, allyscores)
 
 # Print or save the AUC-ROC score
 print(f'AUC-ROC Score: {roc_auc:.2f}')
-
-# with open("/bioProjectIds/kFoldTsvs/y_scores.tsv", "w") as writeFile:
-#     for s in y_scores:
-#         writeFile.write(f"{s}\t")
 
 # Compute ROC curve and ROC area
 fpr, tpr, _ = roc_curve(allytestfold, allyscores)
@@ -253,11 +228,7 @@ with open("/bioProjectIds/sex/ngramFrequencyByCategory.tsv", "w") as writeFile:
 ######REMOVING THE TOP X FEATURES WHAT WOULD HAPPEN?????####################
 #############################################################################
 
-# Sort features based on importance
-# sorted_indices = np.argsort(feature_importances)
-
-# Remove the top X n-grams. Tweak this. It could be the top 50, 100, 150, till it possibly break
-#already did 50. So try 100 or so. 
+# Remove the top X n-grams. It could be the top 50, 100, 150, etc.
 top_ngrams_to_remove = sorted_indices[:numTop]
 xRandomSample_reduced = np.delete(xRandomSample, top_ngrams_to_remove, axis=1)
 
