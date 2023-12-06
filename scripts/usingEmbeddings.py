@@ -1,18 +1,12 @@
-"""
-Objective: Using Random Forest on individual columns of bioprojects to predict outcomes.
+"""Objectives: Create a file that could be the input for machine learning using word embeddings.
 Inputs: 
-- Input data loaded from masterInputOracle.tsv
-- True labels loaded from sexLabeled.tsv
 Outputs: 
-- Precision Recall curves, Confusion Matrix 
-- AUC-ROC score
-- Feature importances and top N-grams visualized and saved
-- N-gram frequencies by category 
-- Results of removing top features and their impact on accuracy visualized and saved
 """
-
 # Code modified from https://www.geeksforgeeks.org/stratified-k-fold-cross-validation/
+import sys
+# Import Required Modules.
 from statistics import mean, stdev
+from sklearn import preprocessing
 from sklearn.metrics import roc_curve, roc_auc_score
 from sklearn.model_selection import StratifiedKFold
 from sklearn.ensemble import RandomForestClassifier  # Import Random Forest Classifier
@@ -20,12 +14,16 @@ import numpy as np
 from sklearn.metrics import roc_curve, auc, confusion_matrix, precision_recall_curve, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 import random
+import os
+import re
+from sentence_transformers import SentenceTransformer 
+
 
 random.seed(1)
 
-#Load the true labels
-yTruthDict = dict()
-with open("/bioProjectIds/sexLabeled.tsv", "r") as readFile:
+# Load the true labels
+yTruthDict = dict() 
+with open("/bioProjectIds/yTruthRandomSample.tsv", "r") as readFile:
     header = readFile.readline()
     for line in readFile:
         line = line.rstrip("\n")
@@ -48,26 +46,29 @@ num1 = 0
 allnums = 0
 
 #Load the input data
-with open("/bioProjectIds/masterInputOracle.tsv", "r") as readFile:
-    header = readFile.readline()
-    ngrams = header.split("\t")[3:]
-    for line in readFile:
-        line = line.rstrip("\n")
-        line = line.split("\t")
-        bioProjid = line[0]
-        if bioProjid not in yTruthDict:
-            continue
-        columnName = line[1]
-        futureTensor = line[3:]
-        xRandomSample.append(futureTensor)
-        bioProjectList.append(bioProjid + columnName)
-        yl = 0
-        if yTruthDict[bioProjid]["overall"] == 1:
-            if columnName in yTruthDict[bioProjid]["goodColumns"]:
-                yl = 1
-                num1 += 1
-        yTruthList.append(yl)
-        allnums += 1
+#For each column in each json of each
+model = SentenceTransformer('sentence-transformers/all-roberta-large-v1',device="cpu")
+for file in os.listdir("bioProjectIds/oracleColumns"):
+    filePath = "/bioProjectIds/oracleColumns/" + file
+    projID = file.split(".")[0]
+    if projID not in yTruthDict:
+        print("MISSING")
+        continue
+    with open(filePath, "r") as readFile:
+        for line in readFile:
+            line = line.rstrip()
+            column = line.split("\t")[0]
+            line = re.sub("\t", " ", line)
+            futureTensor = model.encode(line)
+            xRandomSample.append(futureTensor)
+            bioProjectList.append(projID + " " + column)
+            yl = 0
+            if yTruthDict[projID]["overall"] == 1:
+                if column in yTruthDict[projID]["goodColumns"]:
+                    yl = 1
+                    num1 += 1
+            yTruthList.append(yl)
+            allnums += 1
 print(sum(yTruthList))
 listedLists = xRandomSample
 xRandomSample = np.array(xRandomSample)
@@ -119,15 +120,17 @@ try:
         plt.legend(loc='lower left')
         plt.grid(True)
         plt.show()
-        plt.savefig(f'/results/sex/precision_recall_curve_allsub_{foldNumber}.png')
+        plt.savefig(f'/results/embedding/precision_recall_curve_allsub_{foldNumber}.png')
         for i in range(len(y_scores)):
             allyscores.append(y_scores[i])
         for i in range(len(y_test_fold)):
             allytestfold.append(y_test_fold[i])
             whichFold.append(foldNumber)
             whichColumns.append(bioProjectList[test_index[i]])
+
 except:
     print(train_index, test_index)
+    # Create boxplots for the different cases
 
 #Precision recall
 precision, recall, _ = precision_recall_curve(allytestfold, allyscores)
@@ -140,9 +143,9 @@ plt.title('Precision-Recall Curve')
 plt.legend(loc='lower left')
 plt.grid(True)
 plt.show()
-plt.savefig('/results/sex/precision_recall_curve.png')
+plt.savefig('/results/embedding/precision_recall_curve.png')
 
-with open("/results/sex/confidencesallsub.tsv", "w") as writeFile:
+with open("/results/kFoldTsvs/embeddingConfidencesallsub.tsv", "w") as writeFile:
     writeFile.write(f"Fold\tPrediction\tTruth\tProj&Col\n")
     for i in range(len(allytestfold)):
         writeFile.write(f"{whichFold[i]}\t{allyscores[i]}\t{allytestfold[i]}\t{whichColumns[i]}\n")
@@ -172,7 +175,7 @@ disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[0, 1])
 plt.figure(figsize=(8, 6))
 disp.plot(cmap='Blues', values_format='d')
 plt.title('Confusion Matrix')
-plt.savefig('/results/sex/confusion_matrix_allsub.png')
+plt.savefig('/results/embedding/confusion_matrix_allsub.png')
 plt.show()
 
 ###We are attempting to find the most imporant ngrams
@@ -185,7 +188,7 @@ feature_names = np.array(ngrams)
 sorted_indices = np.argsort(feature_importances)[::-1]
 
 # Select the top n-grams
-numTop = 50
+numTop = 100
 top_ngrams = feature_names[sorted_indices][:numTop]
 top_importances = feature_importances[sorted_indices][:numTop]
 
@@ -197,7 +200,7 @@ plt.xlabel('N-gram')
 plt.ylabel('Feature Importance')
 plt.title(f'Top {numTop} Feature Importances in Random Forest')
 plt.tight_layout()
-plt.savefig('/results/sex/mostRelevantNgrams_allsub.png')
+plt.savefig('/results/embedding/mostRelevantNgrams_allsub.png')
 plt.show()
 
 #Save the ngrams by importance with their frequencies in race and nonrace. 
@@ -219,69 +222,7 @@ for k, value in enumerate(nonraceAverages):
 for k, value in enumerate(raceAverages):
     raceAverages[k] = value / numDivR
 
-with open("/results/sex/ngramFrequencyByCategory.tsv", "w") as writeFile:
-    writeFile.write("Importance\tNgram\tFrequency in Sex Columns\tFrequency in Non Sex Columns\n")
+with open("/results/embedding/ngramFrequencyByCategory.tsv", "w") as writeFile:
+    writeFile.write("Importance\tNgram\tFrequency in Race Columns\tFrequency in Nonrace Columns\n")
     for i, index in enumerate(sorted_indices):
         writeFile.write(f"{i+1}\t{ngrams[index]}\t{raceAverages[index]}\t{nonraceAverages[index]}\n")
-
-#############################################################################
-######REMOVING THE TOP X FEATURES WHAT WOULD HAPPEN?????####################
-#############################################################################
-
-# Remove the top X n-grams. It could be the top 50, 100, 150, etc.
-top_ngrams_to_remove = sorted_indices[:numTop]
-xRandomSample_reduced = np.delete(xRandomSample, top_ngrams_to_remove, axis=1)
-
-# Re-create the StratifiedKFold object
-skf = StratifiedKFold(n_splits=5, shuffle=True)
-
-# Initialize the list for accuracy scores
-lst_accu_stratified = []
-try:
-    for train_index, test_index in skf.split(xRandomSample_reduced, yTruthList):
-        x_train_fold, x_test_fold = xRandomSample_reduced[train_index], xRandomSample_reduced[test_index]
-        y_train_fold, y_test_fold = yTruthList[train_index], yTruthList[test_index]
-        rf.fit(x_train_fold, y_train_fold)
-        lst_accu_stratified.append(rf.score(x_test_fold, y_test_fold))
-
-    # Print the output.
-    print(f'List of possible accuracy without top {numTop} n-grams:', lst_accu_stratified)
-    print(f'\nMaximum Accuracy That can be obtained without top {numTop} n-grams is:', max(lst_accu_stratified) * 100, '%')
-    print(f'\nMinimum Accuracy without top {numTop} n-grams:', min(lst_accu_stratified) * 100, '%')
-    print(f'\nOverall Accuracy without top {numTop} n-grams:', mean(lst_accu_stratified) * 100, '%')
-    print(f'\nStandard Deviation without top {numTop} n-grams is:', stdev(lst_accu_stratified))
-except:
-    print(train_index, test_index)
-y_scores = rf.predict_proba(x_test_fold)[:, 1]  # Probability estimates of the positive class
-
-# Compute ROC curve and ROC area
-fpr, tpr, _ = roc_curve(y_test_fold, y_scores)
-roc_auc = auc(fpr, tpr)
-
-y_scores = rf.predict_proba(x_test_fold)[:, 1]  
-precision, recall, _ = precision_recall_curve(y_test_fold, y_scores)
-auc_pr = auc(recall, precision)
-plt.figure(figsize=(8, 6))
-plt.plot(recall, precision, color='darkorange', lw=2, label=f'PR curve (AUC = {auc_pr:.2f})')
-plt.xlabel('Recall')
-plt.ylabel('Precision')
-plt.title('Precision-Recall Curve')
-plt.legend(loc='lower left')
-plt.grid(True)
-plt.show()
-plt.savefig(f'/results/sex/precision_recall_curve_{numTop}_removed.png')
-
-y_pred = rf.predict(x_test_fold)
-
-# Compute confusion matrix
-cm = confusion_matrix(y_test_fold, y_pred)
-
-# Display confusion matrix
-disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[0, 1])
-
-# Plot confusion matrix
-plt.figure(figsize=(8, 6))
-disp.plot(cmap='Blues', values_format='d')
-plt.title('Confusion Matrix')
-plt.savefig(f'/results/sex/confusion_matrix_removed_top{numTop}.png')
-plt.show()
