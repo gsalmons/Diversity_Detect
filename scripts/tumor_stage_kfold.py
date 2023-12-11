@@ -127,6 +127,7 @@ try:
             allytestfold.append(y_test_fold[i])
             whichFold.append(foldNumber)
             whichColumns.append(bioProjectList[test_index[i]])
+        print("Did a fold right")
 except:
     print(train_index, test_index)
 

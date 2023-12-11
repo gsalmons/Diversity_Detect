@@ -279,7 +279,7 @@ BioProject ID	Label(1=RaceInfo,0=NoRaceInfo)	columnName
 784971	0	
 874313	0	
 305907	0	
-739709	0	
+739709	1	strain
 546616	0	
 871260	0	
 842668	0	
@@ -1074,7 +1074,7 @@ BioProject ID	Label(1=RaceInfo,0=NoRaceInfo)	columnName
 403822	0	
 594338	0	
 647892	0	
-718774	0	
+718774	1	tissue
 816715	0	
 646953	0	
 792951	0	
@@ -1689,7 +1689,7 @@ BioProject ID	Label(1=RaceInfo,0=NoRaceInfo)	columnName
 826962	0	
 697951	0	
 630915	0	
-508890	0	
+508890	1	population
 434171	0	
 510802	0	
 236453	0	

@@ -96,18 +96,4 @@ def callFunction(script_path, commandType="python", arguments=None):
 # callFunction("scripts/sexKFold.py")
 
 # callFunction("scripts/usingEmbeddings.py")
-
-
-import shutil
-
-def delete_directory(directory_path):
-    try:
-        # Use shutil.rmtree to delete the directory and its contents recursively
-        shutil.rmtree(directory_path)
-        print(f"Directory '{directory_path}' deleted successfully.")
-    except OSError as e:
-        print(f"Error: {e.filename} - {e.strerror}")
-
-# Example usage
-directory_to_delete = "/bioProjectIds/ngramedScored"
-delete_directory(directory_to_delete)
+callFunction("scripts/imbalancedRaceKFold.py")

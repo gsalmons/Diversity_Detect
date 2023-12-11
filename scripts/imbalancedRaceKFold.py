@@ -75,23 +75,23 @@ print(sum(yTruthList))
 listedLists = xRandomSample
 xRandomSample = np.array(xRandomSample)
 
+# Define the probabilities for 0 and 1
+probability_0 = (allnums - num1) / allnums  # Probability for 0
+probability_1 =  num1 / allnums # Probability for 1
+print(probability_0, probability_1)
+bestShape = xRandomSample.shape
+
+# Generate a random array based on the specified probabilities
+random_array = np.random.choice([0, 1], size=bestShape, p=[probability_0, probability_1])
+class_weights = {0: probability_0, 1: probability_1}
 # Create classifier object.
-rf = RandomForestClassifier(n_estimators=100, random_state=1)  # You can adjust the parameters as needed
+rf = RandomForestClassifier(n_estimators=100, random_state=1, class_weight=class_weights)  # You can adjust the parameters as needed
 
 # Create StratifiedKFold object.
 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=1)
 lst_accu_stratified = []
 train_index = 0
 test_index = 0
-bestShape = xRandomSample.shape
-
-# Define the probabilities for 0 and 1
-probability_0 = (allnums - num1) / allnums  # Probability for 0
-probability_1 =  num1 / allnums # Probability for 1
-print(probability_0, probability_1)
-
-# Generate a random array based on the specified probabilities
-random_array = np.random.choice([0, 1], size=bestShape, p=[probability_0, probability_1])
 
 print(bestShape)
 yTruthList = np.array(yTruthList)
@@ -122,7 +122,7 @@ try:
         plt.legend(loc='lower left')
         plt.grid(True)
         plt.show()
-        plt.savefig(f'/results/race/precision_recall_curve_allsub_{foldNumber}.png')
+        plt.savefig(f'/results/imbalance/precision_recall_curve_allsub_{foldNumber}.png')
         for i in range(len(y_scores)):
             allyscores.append(y_scores[i])
         for i in range(len(y_test_fold)):
@@ -134,7 +134,7 @@ except:
     print(train_index, test_index)
     # Create boxplots for the different cases
 
-with open("/results/kFoldTsvs/confidencesallsub.tsv", "w") as writeFile:
+with open("/results/kFoldTsvs/imbalancedConfidencesallsub.tsv", "w") as writeFile:
     writeFile.write(f"Fold\tPrediction\tTruth\tProj&Col\n")
     for i in range(len(allytestfold)):
         writeFile.write(f"{whichFold[i]}\t{allyscores[i]}\t{allytestfold[i]}\t{whichColumns[i]}\n")
@@ -153,7 +153,7 @@ plt.title('Precision-Recall Curve')
 plt.legend(loc='lower left')
 plt.grid(True)
 plt.show()
-plt.savefig('/results/race/precision_recall_curve.png')
+plt.savefig('/results/imbalance/precision_recall_curve.png')
 
 # Calculate the AUC-ROC score
 roc_auc = roc_auc_score(allytestfold, allyscores)
@@ -176,7 +176,7 @@ disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[0, 1])
 plt.figure(figsize=(8, 6))
 disp.plot(cmap='Blues', values_format='d')
 plt.title('Confusion Matrix')
-plt.savefig('/results/race/confusion_matrix_allsub.png')
+plt.savefig('/results/imbalance/confusion_matrix_allsub.png')
 plt.show()
 
 ###We are attempting to find the most imporant ngrams
@@ -201,7 +201,7 @@ plt.xlabel('N-gram')
 plt.ylabel('Feature Importance')
 plt.title(f'Top {numTop} Feature Importances in Random Forest')
 plt.tight_layout()
-plt.savefig('/results/race/mostRelevantNgrams_allsub.png')
+plt.savefig('/results/imbalance/mostRelevantNgrams_allsub.png')
 plt.show()
 
 #Save the ngrams by importance with their frequencies in race and nonrace. 
@@ -223,7 +223,7 @@ for k, value in enumerate(nonraceAverages):
 for k, value in enumerate(raceAverages):
     raceAverages[k] = value / numDivR
 
-with open("/results/race/ngramFrequencyByCategory.tsv", "w") as writeFile:
+with open("/results/imbalance/ngramFrequencyByCategory.tsv", "w") as writeFile:
     writeFile.write("Importance\tNgram\tFrequency in Race Columns\tFrequency in Nonrace Columns\n")
     for i, index in enumerate(sorted_indices):
         writeFile.write(f"{i+1}\t{ngrams[index]}\t{raceAverages[index]}\t{nonraceAverages[index]}\n")
@@ -269,7 +269,7 @@ plt.title('Precision-Recall Curve')
 plt.legend(loc='lower left')
 plt.grid(True)
 plt.show()
-plt.savefig(f'/results/race/precision_recall_curve_{numTop}_removed.png')
+plt.savefig(f'/results/imbalance/precision_recall_curve_{numTop}_removed.png')
 
 y_pred = rf.predict(x_test_fold)
 
@@ -283,5 +283,5 @@ disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[0, 1])
 plt.figure(figsize=(8, 6))
 disp.plot(cmap='Blues', values_format='d')
 plt.title('Confusion Matrix')
-plt.savefig(f'/results/race/confusion_matrix_removed_top{numTop}.png')
+plt.savefig(f'/results/imbalance/confusion_matrix_removed_top{numTop}.png')
 plt.show()
